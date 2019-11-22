@@ -29,3 +29,16 @@ If none of the devices are shown, follow [these](https://flutter.dev/docs/get-st
 - Run the app
 
 ```$ flutter run```
+
+## Flutter Topics Explored
+- [SingleChildScrollView](https://api.flutter.dev/flutter/widgets/SingleChildScrollView-class.html)
+- [ListView & ListView Builder](https://api.flutter.dev/flutter/widgets/ListView/ListView.builder.html)
+- [Column](https://api.flutter.dev/flutter/widgets/Column-class.html)
+- [Row](https://api.flutter.dev/flutter/widgets/Row-class.html)
+- [FlatButton](https://api.flutter.dev/flutter/material/FlatButton-class.html)
+- [url_launcher](https://pub.dev/packages/url_launcher)
+- Widget Composition
+
+## GraphQL Guide
+
+## Contributing
