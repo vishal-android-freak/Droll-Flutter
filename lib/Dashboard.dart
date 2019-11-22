@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Dashboard extends StatelessWidget {
   final comicFeed = r'''
@@ -9,6 +10,7 @@ class Dashboard extends StatelessWidget {
       imageURL
       published
       title
+      link
     }
   }
   ''';
@@ -22,87 +24,98 @@ class Dashboard extends StatelessWidget {
           centerTitle: true,
         ),
         body: SingleChildScrollView(
-            padding: EdgeInsets.all(8),
+            padding: const EdgeInsets.all(8),
             scrollDirection: Axis.vertical,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
-                _comicsTitle("xkcd Comics", context),
+                _comicsTitle("xkcd Comics", context, "xkcd"),
                 _comicsList("xkcd"),
-                SizedBox(
+                const SizedBox(
                   height: 16,
                 ),
-                _comicsTitle("PHD Comics", context),
+                _comicsTitle("PHD Comics", context, "phdcomic"),
                 _comicsList("phdcomic"),
               ],
             )));
   }
 
   Widget _comicCard(Map<String, dynamic> comicData) {
-    return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      child: Container(
-        width: 180,
-        height: 220,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            Expanded(
-              flex: 3,
-              child: Image.network(
-                comicData["imageURL"],
-                fit: BoxFit.cover,
-              ),
-            ),
-            Expanded(
-              flex: 2,
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Text(
-                      comicData['title'],
-                      textAlign: TextAlign.left,
-                      style: const TextStyle(
-                          fontWeight: FontWeight.w500, fontSize: 16),
-                    ),
-                    SizedBox(
-                      height: 4,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Text(
-                          "Published: ",
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w300, fontSize: 14),
-                        ),
-                        Text(
-                          comicData['published'],
-                          textAlign: TextAlign.left,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.w300, fontSize: 14),
-                        )
-                      ],
-                    )
-                  ],
+    return GestureDetector(
+      onTap: () async {
+        var link = comicData["link"];
+        if (await canLaunch(link)) {
+          launch(link);
+        } else {
+          //TODO: Handle this gracefully
+        }
+      },
+      child: Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        child: Container(
+          width: 180,
+          height: 220,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Expanded(
+                flex: 3,
+                child: Image.network(
+                  comicData["imageURL"],
+                  fit: BoxFit.cover,
                 ),
               ),
-            )
-          ],
+              Expanded(
+                flex: 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        comicData['title'],
+                        textAlign: TextAlign.left,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.w500, fontSize: 16),
+                      ),
+                      SizedBox(
+                        height: 4,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: <Widget>[
+                          Text(
+                            "Published: ",
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 14),
+                          ),
+                          Text(
+                            comicData['published'],
+                            textAlign: TextAlign.left,
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w300, fontSize: 14),
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _comicsTitle(String comicName, BuildContext context) {
+  Widget _comicsTitle(
+      String comicName, BuildContext context, String comicQueryName) {
     return Padding(
         padding: const EdgeInsets.all(8),
         child: Row(
@@ -113,7 +126,7 @@ class Dashboard extends StatelessWidget {
               comicName,
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w600),
             ),
-            _viewAllButton(context)
+            _viewAllButton(context, comicName, comicQueryName)
           ],
         ));
   }
@@ -126,13 +139,14 @@ class Dashboard extends StatelessWidget {
         if (result.loading) {
           return const Center(
               child: const Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
+            padding: const EdgeInsets.all(16),
+            child: const CircularProgressIndicator(),
           ));
         }
         if (result.hasErrors) {
           //TODO: HANDLE ERROR
           print(result.errors);
+          return Container();
         }
         var data = result.data["feed"] as List<dynamic>;
         return SizedBox(
@@ -148,11 +162,13 @@ class Dashboard extends StatelessWidget {
     );
   }
 
-  Widget _viewAllButton(BuildContext context) {
+  Widget _viewAllButton(
+      BuildContext context, String comicName, String comicQueryName) {
     return FlatButton(
       child: const Text("View All"),
       onPressed: () {
-        Navigator.of(context).pushNamed('/viewAll');
+        Navigator.of(context).pushNamed('/viewAll',
+            arguments: {"comicName": comicName, "queryName": comicQueryName});
       },
     );
   }

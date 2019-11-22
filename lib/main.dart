@@ -35,7 +35,7 @@ class MainApp extends StatelessWidget {
           initialRoute: '/',
           routes: {
             '/': (context) => Dashboard(),
-            '/viewAll': (context) => ViewAllComics()
+            '/viewAll': (context) => ViewAllComics(),
           }),
     );
   }
