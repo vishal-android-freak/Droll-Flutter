@@ -4,6 +4,9 @@
 
 Flutter Implementation of Droll GraphQL APIs - https://github.com/prabhuomkar/droll-api
 
+![image](https://user-images.githubusercontent.com/5111523/69413282-8771d200-0d36-11ea-9a10-d27aa16fca9a.png)
+![image](https://user-images.githubusercontent.com/5111523/69413210-64472280-0d36-11ea-9bd8-994f6720f539.png)
+
 ## Getting Started
 
 This project is a starting point for a Flutter application.
